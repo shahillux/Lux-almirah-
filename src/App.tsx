@@ -247,6 +247,15 @@ export default function App() {
                 </div>
               </div>
 
+              <div className="flex flex-col gap-2 mb-8">
+                <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-green-700 bg-green-50 px-3 py-1.5 border border-green-100">
+                  <span>Cash on Delivery Available 🚚</span>
+                </div>
+                <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-blue-700 bg-blue-50 px-3 py-1.5 border border-blue-100">
+                  <span>Delivery in 2–3 Days ⏱️</span>
+                </div>
+              </div>
+
               <button 
                 onClick={(e) => { e.stopPropagation(); handleBuyNow(product); }}
                 className="btn-primary w-full"
@@ -332,7 +341,7 @@ export default function App() {
           </div>
         </div>
         <div className="max-w-7xl mx-auto mt-16 pt-8 border-t border-white/5 text-[10px] uppercase tracking-[0.2em] opacity-30 flex justify-between">
-          <p>© 2026 Luxe Almirah Boutique</p>
+          <p>© 2026 Luxe Almirah</p>
           <p>Privacy Policy / Terms of Service</p>
         </div>
       </footer>
@@ -395,6 +404,17 @@ export default function App() {
                       <h5 className="text-[10px] uppercase tracking-widest font-bold opacity-40 mb-2">Warranty</h5>
                       <p className="text-xs font-medium">{selectedProduct.warranty}</p>
                     </div>
+                  </div>
+                </div>
+
+                <div className="flex flex-col gap-3 mb-10 p-4 bg-white border border-luxury-dark/5">
+                  <div className="flex items-center gap-3 text-xs font-bold uppercase tracking-widest text-green-700">
+                    <span className="text-lg">🚚</span>
+                    <span>Cash on Delivery Available</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-xs font-bold uppercase tracking-widest text-blue-700">
+                    <span className="text-lg">⏱️</span>
+                    <span>Delivery in 2–3 Days</span>
                   </div>
                 </div>
 

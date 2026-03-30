@@ -2,6 +2,26 @@ import { Product } from './types';
 
 export const PRODUCTS: Product[] = [
   {
+    id: '3',
+    name: 'Pink Gulf Almirah',
+    price: '₹12,000',
+    image: 'https://i.ibb.co/N64x0WtD/1e036a83-977e-4b30-9268-5e0f89b07fd4-3.jpg',
+    material: 'Premium Steel',
+    dimensions: 'Standard Double Door',
+    warranty: '5 Year Warranty on Paint',
+    description: 'A stylish and durable Pink Gulf Almirah, perfect for modern homes. Features high-quality steel construction and a premium paint finish.'
+  },
+  {
+    id: '4',
+    name: 'Gulf Almirah Premium',
+    price: '₹14,000',
+    image: 'https://i.ibb.co/JFCmZKM9/1e036a83-977e-4b30-9268-5e0f89b07fd4-2.jpg',
+    material: 'Premium Steel',
+    dimensions: 'Standard Double Door',
+    warranty: '5 Year Warranty on Paint',
+    description: 'High-quality Gulf Almirah with a focus on durability and style. Built to last with premium materials and a 5-year paint warranty.'
+  },
+  {
     id: '1',
     name: 'ALFA Steel Almirah with Mirror (Pink)',
     price: '₹16,000',
