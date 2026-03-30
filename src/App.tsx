@@ -140,9 +140,9 @@ export default function App() {
       } else {
         throw new Error(result.message || "Failed to submit order");
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Submission failed:", error);
-      alert("Something went wrong. Please try again");
+      alert(error.message || "Something went wrong. Please try again");
     } finally {
       setIsSubmitting(false);
     }
@@ -367,11 +367,12 @@ export default function App() {
                     alert("Subscribed successfully!");
                     emailInput.value = '';
                   } else {
-                    throw new Error("Failed to subscribe");
+                    const result = await response.json();
+                    throw new Error(result.message || "Failed to subscribe");
                   }
-                } catch (error) {
+                } catch (error: any) {
                   console.error("Newsletter subscription failed:", error);
-                  alert("Something went wrong. Please try again.");
+                  alert(error.message || "Something went wrong. Please try again.");
                 }
               }}
               className="flex border-b border-white/20 pb-2"
