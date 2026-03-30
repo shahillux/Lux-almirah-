@@ -14,20 +14,18 @@ async function startServer() {
 
   // API routes
   app.post("/api/order", async (req, res) => {
-    const { name, mobile, address, pincode, product, paymentMethod, status } = req.body;
+    const { name, email, mobile, address, pincode, product, paymentMethod, status } = req.body;
 
-    // Create a transporter for sending emails
-    // Note: For production, use real SMTP credentials in environment variables
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
-        user: process.env.EMAIL_USER || 'placeholder@gmail.com',
-        pass: process.env.EMAIL_PASS || 'placeholder_password'
+        user: process.env.EMAIL_USER || 'biskitip@gmail.com',
+        pass: process.env.EMAIL_PASS
       }
     });
 
     const mailOptions = {
-      from: process.env.EMAIL_USER || 'placeholder@gmail.com',
+      from: process.env.EMAIL_USER || 'biskitip@gmail.com',
       to: 'biskitip@gmail.com',
       subject: `New Order Received: ${product.name}`,
       text: `
@@ -38,6 +36,7 @@ async function startServer() {
         
         Customer Details:
         Name: ${name}
+        Email: ${email}
         Mobile: ${mobile}
         Address: ${address}
         Pincode: ${pincode}
@@ -53,6 +52,7 @@ async function startServer() {
         <hr />
         <h3>Customer Details</h3>
         <p><strong>Name:</strong> ${name}</p>
+        <p><strong>Email:</strong> ${email}</p>
         <p><strong>Mobile:</strong> ${mobile}</p>
         <p><strong>Address:</strong> ${address}</p>
         <p><strong>Pincode:</strong> ${pincode}</p>
@@ -64,22 +64,48 @@ async function startServer() {
     };
 
     try {
-      // In a real scenario, we would send the email here.
-      // Since we don't have real credentials, we'll log it and return success for the demo.
-      console.log("Order received and email notification triggered for:", name);
-      
-      if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
+      if (process.env.EMAIL_PASS) {
         await transporter.sendMail(mailOptions);
+        res.json({ success: true, message: "Order submitted successfully" });
       } else {
-        console.warn("Email not sent: EMAIL_USER and EMAIL_PASS environment variables are not set.");
+        console.warn("Email not sent: EMAIL_PASS environment variable is not set.");
+        res.status(500).json({ success: false, message: "Server email configuration missing" });
       }
-
-      res.json({ success: true, message: "Order submitted successfully" });
     } catch (error) {
       console.error("Error sending email:", error);
-      // Even if email fails, we might want to return success if the order is saved to a DB (not implemented here)
-      // For this task, we'll return success but log the error.
-      res.json({ success: true, message: "Order received (email notification failed)" });
+      res.status(500).json({ success: false, message: "Failed to send order email" });
+    }
+  });
+
+  app.post("/api/newsletter", async (req, res) => {
+    const { email } = req.body;
+
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.EMAIL_USER || 'biskitip@gmail.com',
+        pass: process.env.EMAIL_PASS
+      }
+    });
+
+    const mailOptions = {
+      from: process.env.EMAIL_USER || 'biskitip@gmail.com',
+      to: 'biskitip@gmail.com',
+      subject: `New Newsletter Subscription`,
+      text: `New subscription from: ${email}`,
+      html: `<h3>New Newsletter Subscription</h3><p><strong>Email:</strong> ${email}</p>`
+    };
+
+    try {
+      if (process.env.EMAIL_PASS) {
+        await transporter.sendMail(mailOptions);
+        res.json({ success: true, message: "Subscribed successfully" });
+      } else {
+        res.status(500).json({ success: false, message: "Server email configuration missing" });
+      }
+    } catch (error) {
+      console.error("Error sending newsletter email:", error);
+      res.status(500).json({ success: false, message: "Failed to send subscription email" });
     }
   });
 

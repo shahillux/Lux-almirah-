@@ -21,6 +21,7 @@ export default function App() {
 
   const [formData, setFormData] = useState<OrderFormData>({
     name: '',
+    email: '',
     mobile: '',
     address: '',
     pincode: '',
@@ -94,6 +95,12 @@ export default function App() {
     e.preventDefault();
     if (!selectedProduct) return;
 
+    // Validate that all fields are filled
+    if (!formData.name.trim() || !formData.email.trim() || !formData.mobile.trim() || !formData.address.trim() || !formData.pincode.trim()) {
+      alert("Please fill all the fields: Full Name, Email, Mobile Number, Address, and Pincode");
+      return;
+    }
+
     setIsSubmitting(true);
 
     const orderStatus: OrderStatus = formData.paymentMethod === 'QR' && formData.paymentCompleted ? 'PAID' : 'UNPAID';
@@ -105,19 +112,24 @@ export default function App() {
     };
 
     try {
+      // Sending order details to the backend API
       const response = await fetch('/api/order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(orderPayload),
       });
 
-      if (response.ok) {
+      const result = await response.json();
+
+      if (response.ok && result.success) {
+        alert("Order placed successfully");
         setOrderSubmitted(true);
         setTimeout(() => {
           setIsOrderModalOpen(false);
           setOrderSubmitted(false);
           setFormData({
             name: '',
+            email: '',
             mobile: '',
             address: '',
             pincode: '',
@@ -125,9 +137,12 @@ export default function App() {
             paymentCompleted: false,
           });
         }, 3000);
+      } else {
+        throw new Error(result.message || "Failed to submit order");
       }
     } catch (error) {
-      console.error("Error submitting order:", error);
+      console.error("Submission failed:", error);
+      alert("Something went wrong. Please try again");
     } finally {
       setIsSubmitting(false);
     }
@@ -334,10 +349,42 @@ export default function App() {
           </div>
           <div>
             <h5 className="text-xs uppercase tracking-widest font-bold mb-6 text-luxury-gold">Newsletter</h5>
-            <div className="flex border-b border-white/20 pb-2">
-              <input type="email" placeholder="Email Address" className="bg-transparent text-sm outline-none w-full" />
-              <button><ArrowRight size={16} /></button>
-            </div>
+            <form 
+              onSubmit={async (e) => {
+                e.preventDefault();
+                const emailInput = (e.target as HTMLFormElement).elements.namedItem('newsletter_email') as HTMLInputElement;
+                const email = emailInput.value;
+                if (!email) return;
+                
+                try {
+                  const response = await fetch('/api/newsletter', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email }),
+                  });
+                  
+                  if (response.ok) {
+                    alert("Subscribed successfully!");
+                    emailInput.value = '';
+                  } else {
+                    throw new Error("Failed to subscribe");
+                  }
+                } catch (error) {
+                  console.error("Newsletter subscription failed:", error);
+                  alert("Something went wrong. Please try again.");
+                }
+              }}
+              className="flex border-b border-white/20 pb-2"
+            >
+              <input 
+                type="email" 
+                name="newsletter_email"
+                placeholder="Email Address" 
+                className="bg-transparent text-sm outline-none w-full" 
+                required
+              />
+              <button type="submit"><ArrowRight size={16} /></button>
+            </form>
           </div>
         </div>
         <div className="max-w-7xl mx-auto mt-16 pt-8 border-t border-white/5 text-[10px] uppercase tracking-[0.2em] opacity-30 flex justify-between">
@@ -536,6 +583,21 @@ export default function App() {
                             placeholder="+91 XXXXX XXXXX"
                           />
                         </div>
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-[10px] uppercase tracking-widest font-bold opacity-40 flex items-center gap-2">
+                          <ShoppingBag size={10} /> Email Address
+                        </label>
+                        <input 
+                          required
+                          type="email" 
+                          name="email"
+                          value={formData.email}
+                          onChange={handleInputChange}
+                          className="input-field" 
+                          placeholder="john@example.com"
+                        />
                       </div>
 
                       <div className="space-y-1">

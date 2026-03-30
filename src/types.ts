@@ -11,6 +11,7 @@ export interface Product {
 
 export interface OrderFormData {
   name: string;
+  email: string;
   mobile: string;
   address: string;
   pincode: string;
