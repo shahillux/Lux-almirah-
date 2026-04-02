@@ -1,10 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ShoppingBag, X, CheckCircle2, Phone, MapPin, User, ArrowRight, ShieldCheck, Ruler, Layers, ZoomIn, ZoomOut, Maximize2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { PRODUCTS } from './constants';
 import { Product, OrderFormData, OrderStatus } from './types';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
+import { db, auth } from './firebase';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { signInAnonymously, onAuthStateChanged } from 'firebase/auth';
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -18,6 +21,16 @@ export default function App() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [zoomScale, setZoomScale] = useState(1);
+  const [userId, setUserId] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Sign in anonymously to allow Firestore writes
+    signInAnonymously(auth).catch(err => console.error("Auth error:", err));
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) setUserId(user.uid);
+    });
+    return () => unsubscribe();
+  }, []);
 
   const [formData, setFormData] = useState<OrderFormData>({
     name: '',
@@ -112,7 +125,14 @@ export default function App() {
     };
 
     try {
-      // Sending order details to the backend API
+      // 1. Save order data to Firestore
+      await addDoc(collection(db, 'orders'), {
+        ...orderPayload,
+        createdAt: serverTimestamp(),
+        customerUid: userId
+      });
+
+      // 2. Sending order details to the backend API for email
       const response = await fetch('/api/order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -138,7 +158,11 @@ export default function App() {
           });
         }, 3000);
       } else {
-        throw new Error(result.message || "Failed to submit order");
+        // If email fails but Firestore succeeded, we still consider it a partial success
+        // but inform the user or log it.
+        console.warn("Email notification failed:", result.message);
+        alert("Order placed successfully (Email notification pending)");
+        setIsOrderModalOpen(false);
       }
     } catch (error: any) {
       console.error("Submission failed:", error);
@@ -357,6 +381,13 @@ export default function App() {
                 if (!email) return;
                 
                 try {
+                  // 1. Save to Firestore
+                  await addDoc(collection(db, 'newsletter'), {
+                    email,
+                    createdAt: serverTimestamp()
+                  });
+
+                  // 2. Send email notification
                   const response = await fetch('/api/newsletter', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -368,7 +399,9 @@ export default function App() {
                     emailInput.value = '';
                   } else {
                     const result = await response.json();
-                    throw new Error(result.message || "Failed to subscribe");
+                    console.warn("Newsletter email failed:", result.message);
+                    alert("Subscribed successfully!");
+                    emailInput.value = '';
                   }
                 } catch (error: any) {
                   console.error("Newsletter subscription failed:", error);

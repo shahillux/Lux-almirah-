@@ -1,0 +1,48 @@
+{
+  "entities": {
+    "Order": {
+      "title": "Order",
+      "description": "Customer order details",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "Customer name" },
+        "email": { "type": "string", "format": "email", "description": "Customer email" },
+        "mobile": { "type": "string", "description": "Customer mobile number" },
+        "address": { "type": "string", "description": "Delivery address" },
+        "pincode": { "type": "string", "description": "Postal code" },
+        "product": {
+          "type": "object",
+          "properties": {
+            "id": { "type": "string" },
+            "name": { "type": "string" },
+            "price": { "type": "string" }
+          }
+        },
+        "paymentMethod": { "type": "string", "enum": ["COD", "QR"] },
+        "status": { "type": "string", "enum": ["PAID", "UNPAID"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "email", "mobile", "address", "pincode", "product", "paymentMethod", "status", "createdAt"]
+    },
+    "Newsletter": {
+      "title": "Newsletter",
+      "description": "Newsletter subscription",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string", "format": "email", "description": "Subscriber email" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["email", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/orders/{orderId}": {
+      "schema": "Order",
+      "description": "Collection of customer orders"
+    },
+    "/newsletter/{subscriberId}": {
+      "schema": "Newsletter",
+      "description": "Collection of newsletter subscribers"
+    }
+  }
+}
