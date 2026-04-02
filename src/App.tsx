@@ -7,6 +7,7 @@ import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { db } from './firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import emailjs from '@emailjs/browser';
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -120,38 +121,45 @@ export default function App() {
         createdAt: serverTimestamp()
       });
 
-      // 2. Sending order details to the backend API for email
-      const response = await fetch('/api/order', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(orderPayload),
-      });
+      // 2. Send email notification using EmailJS
+      const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID;
+      const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
+      const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
 
-      const result = await response.json();
-
-      if (response.ok && result.success) {
-        alert("Order placed successfully");
-        setOrderSubmitted(true);
-        setTimeout(() => {
-          setIsOrderModalOpen(false);
-          setOrderSubmitted(false);
-          setFormData({
-            name: '',
-            email: '',
-            mobile: '',
-            address: '',
-            pincode: '',
-            paymentMethod: 'COD',
-            paymentCompleted: false,
-          });
-        }, 3000);
-      } else {
-        // If email fails but Firestore succeeded, we still consider it a partial success
-        // but inform the user or log it.
-        console.warn("Email notification failed:", result.message);
-        alert("Order placed successfully (Email notification pending)");
-        setIsOrderModalOpen(false);
+      if (!serviceId || !templateId || !publicKey) {
+        throw new Error("Email configuration is missing. Please set VITE_EMAILJS_SERVICE_ID, VITE_EMAILJS_TEMPLATE_ID, and VITE_EMAILJS_PUBLIC_KEY in environment variables.");
       }
+
+      const templateParams = {
+        to_email: 'biskitip@gmail.com',
+        from_name: formData.name,
+        customer_email: formData.email,
+        mobile_number: formData.mobile,
+        address: formData.address,
+        pincode: formData.pincode,
+        product_name: selectedProduct.name,
+        product_price: selectedProduct.price,
+        payment_method: formData.paymentMethod,
+        payment_status: orderStatus,
+      };
+
+      await emailjs.send(serviceId, templateId, templateParams, publicKey);
+
+      alert("Order placed successfully. We will contact you soon.");
+      setOrderSubmitted(true);
+      setTimeout(() => {
+        setIsOrderModalOpen(false);
+        setOrderSubmitted(false);
+        setFormData({
+          name: '',
+          email: '',
+          mobile: '',
+          address: '',
+          pincode: '',
+          paymentMethod: 'COD',
+          paymentCompleted: false,
+        });
+      }, 3000);
     } catch (error: any) {
       console.error("Submission failed:", error);
       alert(error.message || "Something went wrong. Please try again");
@@ -375,22 +383,27 @@ export default function App() {
                     createdAt: serverTimestamp()
                   });
 
-                  // 2. Send email notification
-                  const response = await fetch('/api/newsletter', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email }),
-                  });
-                  
-                  if (response.ok) {
-                    alert("Subscribed successfully!");
-                    emailInput.value = '';
-                  } else {
-                    const result = await response.json();
-                    console.warn("Newsletter email failed:", result.message);
-                    alert("Subscribed successfully!");
-                    emailInput.value = '';
+                  // 2. Send email notification using EmailJS
+                  const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID;
+                  const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
+                  const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
+
+                  if (serviceId && templateId && publicKey) {
+                    await emailjs.send(
+                      serviceId,
+                      templateId,
+                      { 
+                        to_email: 'biskitip@gmail.com', 
+                        from_name: 'Newsletter Subscriber', 
+                        customer_email: email, 
+                        message: 'New newsletter subscription' 
+                      },
+                      publicKey
+                    );
                   }
+                  
+                  alert("Subscribed successfully!");
+                  emailInput.value = '';
                 } catch (error: any) {
                   console.error("Newsletter subscription failed:", error);
                   alert(error.message || "Something went wrong. Please try again.");
