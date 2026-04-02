@@ -5,9 +5,8 @@ import { PRODUCTS } from './constants';
 import { Product, OrderFormData, OrderStatus } from './types';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
-import { db, auth } from './firebase';
+import { db } from './firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
-import { signInAnonymously, onAuthStateChanged } from 'firebase/auth';
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -21,16 +20,6 @@ export default function App() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [zoomScale, setZoomScale] = useState(1);
-  const [userId, setUserId] = useState<string | null>(null);
-
-  useEffect(() => {
-    // Sign in anonymously to allow Firestore writes
-    signInAnonymously(auth).catch(err => console.error("Auth error:", err));
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) setUserId(user.uid);
-    });
-    return () => unsubscribe();
-  }, []);
 
   const [formData, setFormData] = useState<OrderFormData>({
     name: '',
@@ -128,8 +117,7 @@ export default function App() {
       // 1. Save order data to Firestore
       await addDoc(collection(db, 'orders'), {
         ...orderPayload,
-        createdAt: serverTimestamp(),
-        customerUid: userId
+        createdAt: serverTimestamp()
       });
 
       // 2. Sending order details to the backend API for email
