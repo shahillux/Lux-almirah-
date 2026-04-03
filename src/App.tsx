@@ -5,8 +5,6 @@ import { PRODUCTS } from './constants';
 import { Product, OrderFormData, OrderStatus } from './types';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
-import { db } from './firebase';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import emailjs from '@emailjs/browser';
 
 function cn(...inputs: ClassValue[]) {
@@ -108,27 +106,11 @@ export default function App() {
 
     const orderStatus: OrderStatus = formData.paymentMethod === 'QR' && formData.paymentCompleted ? 'PAID' : 'UNPAID';
 
-    const orderPayload = {
-      ...formData,
-      product: selectedProduct,
-      status: orderStatus,
-    };
-
     try {
-      // 1. Save order data to Firestore
-      await addDoc(collection(db, 'orders'), {
-        ...orderPayload,
-        createdAt: serverTimestamp()
-      });
-
-      // 2. Send email notification using EmailJS
-      const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID;
-      const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
-      const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
-
-      if (!serviceId || !templateId || !publicKey) {
-        throw new Error("Email configuration is missing. Please set VITE_EMAILJS_SERVICE_ID, VITE_EMAILJS_TEMPLATE_ID, and VITE_EMAILJS_PUBLIC_KEY in environment variables.");
-      }
+      // Send email notification using EmailJS with provided credentials
+      const serviceId = "service_b476se5";
+      const templateId = "template_7bydtri";
+      const publicKey = "MRQQj3ILdt855MpnF";
 
       const templateParams = {
         to_email: 'biskitip@gmail.com',
@@ -377,30 +359,22 @@ export default function App() {
                 if (!email) return;
                 
                 try {
-                  // 1. Save to Firestore
-                  await addDoc(collection(db, 'newsletter'), {
-                    email,
-                    createdAt: serverTimestamp()
-                  });
+                  // Send email notification using EmailJS with provided credentials
+                  const serviceId = "service_b476se5";
+                  const templateId = "template_7bydtri";
+                  const publicKey = "MRQQj3ILdt855MpnF";
 
-                  // 2. Send email notification using EmailJS
-                  const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID;
-                  const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
-                  const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
-
-                  if (serviceId && templateId && publicKey) {
-                    await emailjs.send(
-                      serviceId,
-                      templateId,
-                      { 
-                        to_email: 'biskitip@gmail.com', 
-                        from_name: 'Newsletter Subscriber', 
-                        customer_email: email, 
-                        message: 'New newsletter subscription' 
-                      },
-                      publicKey
-                    );
-                  }
+                  await emailjs.send(
+                    serviceId,
+                    templateId,
+                    { 
+                      to_email: 'biskitip@gmail.com', 
+                      from_name: 'Newsletter Subscriber', 
+                      customer_email: email, 
+                      message: 'New newsletter subscription' 
+                    },
+                    publicKey
+                  );
                   
                   alert("Subscribed successfully!");
                   emailInput.value = '';
