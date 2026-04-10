@@ -107,14 +107,10 @@ export default function App() {
     const orderStatus: OrderStatus = formData.paymentMethod === 'QR' && formData.paymentCompleted ? 'PAID' : 'UNPAID';
 
     try {
-      // Send email notification using EmailJS with environment variables
-      const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID;
-      const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
-      const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
-
-      if (!serviceId || !templateId || !publicKey) {
-        throw new Error("Email configuration is missing. Please set VITE_EMAILJS_SERVICE_ID, VITE_EMAILJS_TEMPLATE_ID, and VITE_EMAILJS_PUBLIC_KEY in environment variables.");
-      }
+      // Use environment variables if available, otherwise fallback to provided IDs
+      const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID || "service_b476se5";
+      const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID || "template_7bydtri";
+      const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY || "MRQQj3ILdt855MpnF";
 
       const templateParams = {
         to_email: 'biskitip@gmail.com',
@@ -148,7 +144,8 @@ export default function App() {
       }, 3000);
     } catch (error: any) {
       console.error("Submission failed:", error);
-      alert(error.message || "Something went wrong. Please try again");
+      const errorDetail = error?.text || error?.message || "Please check your internet connection or try again later.";
+      alert(`Submission failed: ${errorDetail}`);
     } finally {
       setIsSubmitting(false);
     }
@@ -363,14 +360,10 @@ export default function App() {
                 if (!email) return;
                 
                 try {
-                  // Send email notification using EmailJS with environment variables
-                  const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID;
-                  const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
-                  const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
-
-                  if (!serviceId || !templateId || !publicKey) {
-                    throw new Error("Email configuration is missing.");
-                  }
+                  // Use environment variables if available, otherwise fallback to provided IDs
+                  const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID || "service_b476se5";
+                  const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID || "template_7bydtri";
+                  const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY || "MRQQj3ILdt855MpnF";
 
                   await emailjs.send(
                     serviceId,
@@ -388,7 +381,8 @@ export default function App() {
                   emailInput.value = '';
                 } catch (error: any) {
                   console.error("Newsletter subscription failed:", error);
-                  alert(error.message || "Something went wrong. Please try again.");
+                  const errorDetail = error?.text || error?.message || "Please try again later.";
+                  alert(`Subscription failed: ${errorDetail}`);
                 }
               }}
               className="flex border-b border-white/20 pb-2"
