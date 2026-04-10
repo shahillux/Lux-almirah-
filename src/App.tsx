@@ -107,10 +107,13 @@ export default function App() {
     const orderStatus: OrderStatus = formData.paymentMethod === 'QR' && formData.paymentCompleted ? 'PAID' : 'UNPAID';
 
     try {
+      console.log("Starting order submission...");
       // Use environment variables if available, otherwise fallback to provided IDs
       const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID || "service_b476se5";
       const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID || "template_7bydtri";
       const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY || "MRQQj3ILdt855MpnF";
+
+      console.log("Using EmailJS Service ID:", serviceId);
 
       const templateParams = {
         to_email: 'biskitip@gmail.com',
@@ -126,6 +129,7 @@ export default function App() {
       };
 
       await emailjs.send(serviceId, templateId, templateParams, publicKey);
+      console.log("Order email sent successfully!");
 
       alert("Order placed successfully. We will contact you soon.");
       setOrderSubmitted(true);
@@ -360,6 +364,7 @@ export default function App() {
                 if (!email) return;
                 
                 try {
+                  console.log("Starting newsletter subscription...");
                   // Use environment variables if available, otherwise fallback to provided IDs
                   const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID || "service_b476se5";
                   const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID || "template_7bydtri";
@@ -372,10 +377,18 @@ export default function App() {
                       to_email: 'biskitip@gmail.com', 
                       from_name: 'Newsletter Subscriber', 
                       customer_email: email, 
+                      mobile_number: 'N/A',
+                      address: 'Newsletter Subscription',
+                      pincode: 'N/A',
+                      product_name: 'Newsletter',
+                      product_price: 'N/A',
+                      payment_method: 'N/A',
+                      payment_status: 'N/A',
                       message: 'New newsletter subscription' 
                     },
                     publicKey
                   );
+                  console.log("Newsletter email sent successfully!");
                   
                   alert("Subscribed successfully!");
                   emailInput.value = '';
