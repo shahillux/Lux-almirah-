@@ -107,10 +107,14 @@ export default function App() {
     const orderStatus: OrderStatus = formData.paymentMethod === 'QR' && formData.paymentCompleted ? 'PAID' : 'UNPAID';
 
     try {
-      // Send email notification using EmailJS with provided credentials
-      const serviceId = "service_b476se5";
-      const templateId = "template_7bydtri";
-      const publicKey = "MRQQj3ILdt855MpnF";
+      // Send email notification using EmailJS with environment variables
+      const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID;
+      const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
+      const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
+
+      if (!serviceId || !templateId || !publicKey) {
+        throw new Error("Email configuration is missing. Please set VITE_EMAILJS_SERVICE_ID, VITE_EMAILJS_TEMPLATE_ID, and VITE_EMAILJS_PUBLIC_KEY in environment variables.");
+      }
 
       const templateParams = {
         to_email: 'biskitip@gmail.com',
@@ -359,10 +363,14 @@ export default function App() {
                 if (!email) return;
                 
                 try {
-                  // Send email notification using EmailJS with provided credentials
-                  const serviceId = "service_b476se5";
-                  const templateId = "template_7bydtri";
-                  const publicKey = "MRQQj3ILdt855MpnF";
+                  // Send email notification using EmailJS with environment variables
+                  const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID;
+                  const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
+                  const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
+
+                  if (!serviceId || !templateId || !publicKey) {
+                    throw new Error("Email configuration is missing.");
+                  }
 
                   await emailjs.send(
                     serviceId,
