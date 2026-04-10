@@ -109,9 +109,9 @@ export default function App() {
     try {
       console.log("Starting order submission...");
       // Use environment variables if available, otherwise fallback to provided IDs
-      const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID || "service_b476se5";
-      const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID || "template_7bydtri";
-      const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY || "MRQQj3ILdt855MpnF";
+      const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID || "service_vnslbug";
+      const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID || "template_4wzsq81";
+      const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY || "Ura9m2xk6wRg9b855";
 
       console.log("Using EmailJS Service ID:", serviceId);
 
@@ -366,9 +366,9 @@ export default function App() {
                 try {
                   console.log("Starting newsletter subscription...");
                   // Use environment variables if available, otherwise fallback to provided IDs
-                  const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID || "service_b476se5";
-                  const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID || "template_7bydtri";
-                  const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY || "MRQQj3ILdt855MpnF";
+                  const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID || "service_vnslbug";
+                  const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID || "template_4wzsq81";
+                  const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY || "Ura9m2xk6wRg9b855";
 
                   await emailjs.send(
                     serviceId,
