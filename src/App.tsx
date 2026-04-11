@@ -22,7 +22,7 @@ export default function App() {
   const [formData, setFormData] = useState<OrderFormData>({
     name: '',
     email: '',
-    mobile: '',
+    phone: '',
     address: '',
     pincode: '',
     paymentMethod: 'COD',
@@ -96,7 +96,7 @@ export default function App() {
     if (!selectedProduct) return;
 
     // Validate that all fields are filled
-    if (!formData.name.trim() || !formData.email.trim() || !formData.mobile.trim() || !formData.address.trim() || !formData.pincode.trim()) {
+    if (!formData.name.trim() || !formData.email.trim() || !formData.phone.trim() || !formData.address.trim() || !formData.pincode.trim()) {
       alert("Please fill all the fields: Full Name, Email, Mobile Number, Address, and Pincode");
       return;
     }
@@ -117,7 +117,7 @@ export default function App() {
         body: JSON.stringify({
           name: formData.name,
           email: formData.email,
-          phone: formData.mobile,
+          phone: formData.phone,
           address: formData.address,
           pincode: formData.pincode,
           product_name: selectedProduct.name,
@@ -141,7 +141,7 @@ export default function App() {
         setFormData({
           name: '',
           email: '',
-          mobile: '',
+          phone: '',
           address: '',
           pincode: '',
           paymentMethod: 'COD',
@@ -602,7 +602,7 @@ export default function App() {
                             required
                             type="tel" 
                             name="phone"
-                            value={formData.mobile}
+                            value={formData.phone}
                             onChange={handleInputChange}
                             className="input-field" 
                             placeholder="+91 XXXXX XXXXX"

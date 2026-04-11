@@ -12,7 +12,7 @@ export interface Product {
 export interface OrderFormData {
   name: string;
   email: string;
-  mobile: string;
+  phone: string;
   address: string;
   pincode: string;
   paymentMethod: 'COD' | 'QR';
