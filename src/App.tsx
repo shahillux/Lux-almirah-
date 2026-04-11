@@ -5,7 +5,6 @@ import { PRODUCTS } from './constants';
 import { Product, OrderFormData, OrderStatus } from './types';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
-import emailjs from '@emailjs/browser';
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -107,31 +106,34 @@ export default function App() {
     const orderStatus: OrderStatus = formData.paymentMethod === 'QR' && formData.paymentCompleted ? 'PAID' : 'UNPAID';
 
     try {
-      console.log("Starting order submission...");
-      // Use environment variables if available, otherwise fallback to provided IDs
-      const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID || "service_vnslbug";
-      const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID || "template_4wzsq81";
-      const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY || "Ura9m2xk6wRg9b855";
+      console.log("Starting order submission to Formspree...");
+      
+      const response = await fetch("https://formspree.io/f/xdapqzen", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          phone: formData.mobile,
+          address: formData.address,
+          pincode: formData.pincode,
+          product_name: selectedProduct.name,
+          product_price: selectedProduct.price,
+          payment_method: formData.paymentMethod,
+          payment_status: orderStatus,
+        })
+      });
 
-      console.log("Using EmailJS Service ID:", serviceId);
+      if (!response.ok) {
+        throw new Error("Form submission failed");
+      }
 
-      const templateParams = {
-        to_email: 'biskitip@gmail.com',
-        from_name: formData.name,
-        customer_email: formData.email,
-        mobile_number: formData.mobile,
-        address: formData.address,
-        pincode: formData.pincode,
-        product_name: selectedProduct.name,
-        product_price: selectedProduct.price,
-        payment_method: formData.paymentMethod,
-        payment_status: orderStatus,
-      };
+      console.log("Order submitted successfully!");
 
-      await emailjs.send(serviceId, templateId, templateParams, publicKey);
-      console.log("Order email sent successfully!");
-
-      alert("Order placed successfully. We will contact you soon.");
+      alert("Order placed successfully");
       setOrderSubmitted(true);
       setTimeout(() => {
         setIsOrderModalOpen(false);
@@ -148,8 +150,7 @@ export default function App() {
       }, 3000);
     } catch (error: any) {
       console.error("Submission failed:", error);
-      const errorDetail = error?.text || error?.message || "Please check your internet connection or try again later.";
-      alert(`Submission failed: ${errorDetail}`);
+      alert("Something went wrong. Please try again later.");
     } finally {
       setIsSubmitting(false);
     }
@@ -357,52 +358,47 @@ export default function App() {
           <div>
             <h5 className="text-xs uppercase tracking-widest font-bold mb-6 text-luxury-gold">Newsletter</h5>
             <form 
+              action="https://formspree.io/f/xdapqzen"
+              method="POST"
               onSubmit={async (e) => {
                 e.preventDefault();
-                const emailInput = (e.target as HTMLFormElement).elements.namedItem('newsletter_email') as HTMLInputElement;
+                const emailInput = (e.target as HTMLFormElement).elements.namedItem('email') as HTMLInputElement;
                 const email = emailInput.value;
                 if (!email) return;
                 
                 try {
-                  console.log("Starting newsletter subscription...");
-                  // Use environment variables if available, otherwise fallback to provided IDs
-                  const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID || "service_vnslbug";
-                  const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID || "template_4wzsq81";
-                  const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY || "Ura9m2xk6wRg9b855";
-
-                  await emailjs.send(
-                    serviceId,
-                    templateId,
-                    { 
-                      to_email: 'biskitip@gmail.com', 
-                      from_name: 'Newsletter Subscriber', 
-                      customer_email: email, 
-                      mobile_number: 'N/A',
-                      address: 'Newsletter Subscription',
-                      pincode: 'N/A',
-                      product_name: 'Newsletter',
-                      product_price: 'N/A',
-                      payment_method: 'N/A',
-                      payment_status: 'N/A',
-                      message: 'New newsletter subscription' 
+                  console.log("Starting newsletter subscription to Formspree...");
+                  
+                  const response = await fetch("https://formspree.io/f/xdapqzen", {
+                    method: "POST",
+                    headers: {
+                      "Content-Type": "application/json",
+                      "Accept": "application/json"
                     },
-                    publicKey
-                  );
-                  console.log("Newsletter email sent successfully!");
+                    body: JSON.stringify({
+                      email: email,
+                      subject: 'New newsletter subscription' 
+                    })
+                  });
+
+                  if (!response.ok) {
+                    throw new Error("Subscription failed");
+                  }
+
+                  console.log("Newsletter submitted successfully!");
                   
                   alert("Subscribed successfully!");
                   emailInput.value = '';
                 } catch (error: any) {
                   console.error("Newsletter subscription failed:", error);
-                  const errorDetail = error?.text || error?.message || "Please try again later.";
-                  alert(`Subscription failed: ${errorDetail}`);
+                  alert("Something went wrong. Please try again later.");
                 }
               }}
               className="flex border-b border-white/20 pb-2"
             >
               <input 
                 type="email" 
-                name="newsletter_email"
+                name="email"
                 placeholder="Email Address" 
                 className="bg-transparent text-sm outline-none w-full" 
                 required
@@ -577,7 +573,12 @@ export default function App() {
                       </button>
                     </div>
 
-                    <form onSubmit={handleSubmitOrder} className="space-y-6">
+                    <form 
+                      action="https://formspree.io/f/xdapqzen"
+                      method="POST"
+                      onSubmit={handleSubmitOrder} 
+                      className="space-y-6"
+                    >
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="space-y-1">
                           <label className="text-[10px] uppercase tracking-widest font-bold opacity-40 flex items-center gap-2">
@@ -600,7 +601,7 @@ export default function App() {
                           <input 
                             required
                             type="tel" 
-                            name="mobile"
+                            name="phone"
                             value={formData.mobile}
                             onChange={handleInputChange}
                             className="input-field" 
